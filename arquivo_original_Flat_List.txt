@@ -1,0 +1,238 @@
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  TouchableOpacity,
+  SafeAreaView,
+} from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+// 1. Dados simulados dos países
+const PAISES = [
+  {
+    id: '1',
+    nome: 'Brasil',
+    bandeira: '🇧🇷',
+    capital: 'Brasília',
+    populacao: '215,3 milhões',
+    territorio: '8.510.000 km²',
+    continente: 'América do Sul',
+    idioma: 'Português',
+  },
+  {
+    id: '2',
+    nome: 'Japão',
+    bandeira: '🇯🇵',
+    capital: 'Tóquio',
+    populacao: '125,7 milhões',
+    territorio: '377.975 km²',
+    continente: 'Ásia',
+    idioma: 'Japonês',
+  },
+  {
+    id: '3',
+    nome: 'Canadá',
+    bandeira: '🇨🇦',
+    capital: 'Ottawa',
+    populacao: '38,2 milhões',
+    territorio: '9.984.670 km²',
+    continente: 'América do Norte',
+    idioma: 'Inglês e Francês',
+  },
+  {
+    id: '4',
+    nome: 'Alemanha',
+    bandeira: '🇩🇪',
+    capital: 'Berlim',
+    populacao: '83,2 milhões',
+    territorio: '357.022 km²',
+    continente: 'Europa',
+    idioma: 'Alemão',
+  },
+  {
+    id: '5',
+    nome: 'Austrália',
+    bandeira: '🇦🇺',
+    capital: 'Camberra',
+    populacao: '25,7 milhões',
+    territorio: '7.692.024 km²',
+    continente: 'Oceania',
+    idioma: 'Inglês',
+  },
+];
+
+const Stack = createNativeStackNavigator();
+
+// 2. Tela Principal: Lista de Países (FlatList)
+function ListaPaisesScreen({ navigation }) {
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      style={styles.card}
+      // Navega para 'Detalhes' passando o objeto inteiro do país via parâmetro
+      onPress={() => navigation.navigate('Detalhes', { pais: item })}>
+      <Text style={styles.bandeira}>{item.bandeira}</Text>
+      <View style={styles.infoContainer}>
+        <Text style={styles.nomePais}>{item.nome}</Text>
+        <Text style={styles.subtitulo}>Capital: {item.capital}</Text>
+      </View>
+      <Text style={styles.seta}>›</Text>
+    </TouchableOpacity>
+  );
+
+  return (
+   
+      <FlatList
+        data={PAISES}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        contentContainerStyle={styles.lista}
+      />
+  );
+}
+
+// 3. Tela Secundária: Detalhes do País
+function DetalhesPaisScreen({ route }) {
+  // Recupera o objeto 'pais' enviado pela tela anterior
+  const { pais } = route.params;
+
+  return (
+    <View style={styles.detalhesContainer}>
+      <View style={styles.headerDetalhes}>
+        <Text style={styles.bandeiraGrande}>{pais.bandeira}</Text>
+        <Text style={styles.tituloGrande}>{pais.nome}</Text>
+        <Text style={styles.continente}>{pais.continente}</Text>
+      </View>
+
+      <View style={styles.boxInfo}>
+        <InfoLinha label="Capital" valor={pais.capital} />
+        <InfoLinha label="População" valor={pais.populacao} />
+        <InfoLinha label="Território" valor={pais.territorio} />
+        <InfoLinha label="Idioma Oficial" valor={pais.idioma} />
+      </View>
+    </View>
+  );
+}
+
+// Componente auxiliar para organizar as linhas de informação
+function InfoLinha({ label, valor }) {
+  return (
+    <View style={styles.linha}>
+      <Text style={styles.label}>{label}:</Text>
+      <Text style={styles.valor}>{valor}</Text>
+    </View>
+  );
+}
+
+// 4. Configuração principal da Navegação
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Lista">
+        <Stack.Screen
+          name="Lista"
+          component={ListaPaisesScreen}
+          options={{ title: 'Países do Mundo' }}
+        />
+        <Stack.Screen
+          name="Detalhes"
+          component={DetalhesPaisScreen}
+          // Define o título do cabeçalho dinamicamente com o nome do país
+          options={({ route }) => ({ title: route.params.pais.nome })}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
+// 5. Estilos
+const styles = StyleSheet.create({
+  lista: {
+    padding: 16,
+  },
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    padding: 16,
+    marginBottom: 12,
+    borderRadius: 12,
+    elevation: 2, // Sombra no Android
+    shadowColor: '#000', // Sombra no iOS
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+  bandeira: {
+    fontSize: 32,
+    marginRight: 16,
+  },
+  infoContainer: {
+    flex: 1,
+  },
+  nomePais: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1e293b',
+  },
+  subtitulo: {
+    fontSize: 14,
+    color: '#64748b',
+    marginTop: 2,
+  },
+  seta: {
+    fontSize: 24,
+    color: '#94a3b8',
+    fontWeight: 'bold',
+  },
+  // Estilos da Tela de Detalhes
+  detalhesContainer: {
+    flex: 1,
+    backgroundColor: '#f2f4f8',
+    padding: 20,
+  },
+  headerDetalhes: {
+    alignItems: 'center',
+    marginBottom: 24,
+    backgroundColor: '#ffffff',
+    padding: 24,
+    borderRadius: 16,
+  },
+  bandeiraGrande: {
+    fontSize: 72,
+    marginBottom: 8,
+  },
+  tituloGrande: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#0f172a',
+  },
+  continente: {
+    fontSize: 16,
+    color: '#64748b',
+    marginTop: 4,
+  },
+  boxInfo: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 20,
+  },
+  linha: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
+  },
+  label: {
+    fontSize: 16,
+    color: '#64748b',
+    fontWeight: '500',
+  },
+  valor: {
+    fontSize: 16,
+    color: '#0f172a',
+    fontWeight: 'bold',
+  },
+});
